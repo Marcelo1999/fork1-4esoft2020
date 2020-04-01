@@ -1,4 +1,8 @@
-package observer.cofre;
+package observer.cofre.domain;
+
+import observer.cofre.listener.AbrirCofreListener;
+import observer.cofre.listener.FecharCofreListener;
+import observer.cofre.exception.SenhaIncorretaException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +37,7 @@ public class Cofre {
             this.aberto = true;
             this.abrirListeners.forEach(AbrirCofreListener::cofreFoiAberto);
         } else {
-            throw new RuntimeException("Senha incorreta, tente novamente.");
+            throw new SenhaIncorretaException("Senha incorreta, tente novamente.");
         }
     }
 

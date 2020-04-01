@@ -1,4 +1,4 @@
-package observer.cofre;
+package observer.cofre.listener;
 
 public interface AbrirCofreListener {
 

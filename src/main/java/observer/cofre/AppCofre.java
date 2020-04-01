@@ -1,5 +1,9 @@
 package observer.cofre;
 
+import observer.cofre.domain.Cofre;
+import observer.cofre.listener.AbrirCofreListenerConsole;
+import observer.cofre.listener.FecharCofreListenerConsole;
+
 public class AppCofre {
 
     public static void main(String[] args) {
