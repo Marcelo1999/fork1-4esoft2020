@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+// Os testes desse controller estão na pasta de testes, no pacote unicesumar.segundoBimestre
 @RestController
 @RequestMapping("/api/pessoas")
 public class PessoaController {
