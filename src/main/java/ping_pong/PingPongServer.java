@@ -2,46 +2,30 @@ package ping_pong;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.ArrayList;
-import java.util.List;
 
 public class PingPongServer {
-    private static final int PORT = 8080;
-    private List<PingPongHandler> pingPongHandlers = new ArrayList<>();
+
+    private static final int PORT = 8030;
 
     public static void main(String[] args) {
-        PingPongServer server = new PingPongServer();
-        server.listen();
+
+        final PingPongServer server = new PingPongServer();
+        server.listenClient();
     }
 
-    private void listen() {
+    private void listenClient() {
+
         try (ServerSocket socket = new ServerSocket(PORT)) {
             while (true) {
-                PingPongHandler client = new PingPongHandler(socket.accept(), new PingPongHandlerListener() {
-                    @Override
-                    public void handleMessage(String username, String message) {
-                        for (PingPongHandler chatClientHandler : pingPongHandlers) {
-                            chatClientHandler.send(">> " + username + ": " + message);
-                        }
-                    }
-
-                    @Override
-                    public void handleLogin(String username) {
-                        for (PingPongHandler chatClientHandler : pingPongHandlers) {
-                            chatClientHandler.send("New user logged in: " + username);
-                        }
-                    }
-                });
-                pingPongHandlers.add(client);
+                PingPongHandler client = new PingPongHandler(socket.accept());
                 client.start();
 
-                if (client.isInterrupted()) {
-                	break;
-				}
+                if (client.isInterrupted() || !client.isAlive()) {
+                    break;
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 }

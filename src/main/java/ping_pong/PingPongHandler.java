@@ -1,60 +1,68 @@
 package ping_pong;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
 public class PingPongHandler extends Thread {
-	private Socket socket;
-	private String username;
-	private PingPongHandlerListener listener;
-	private PrintWriter output;
-	private Logger logger = Logger.getLogger(PingPongHandler.class.getName());
-			
-	public PingPongHandler(Socket socket, PingPongHandlerListener listener) {
-		logger.info("New user connecting...");
-		this.socket = socket;
-		this.listener = listener;
-	}
 
-	//"command<<<>>>body"
-	//"login<<<>>>fulana.de.almeida"
-	//"message<<<>>>Olá pessoal, boa tarde!"
-	public void run() {
-		try  {
-			output = new PrintWriter(socket.getOutputStream());
-			Scanner input = new Scanner(socket.getInputStream());			
-			while (true) {
-				final String message = input.nextLine();
-				final String[] messageArray = message.split("<<<>>>");
-				logger.info("New message: [" + message + "]");
-				final String command = messageArray[0];
-				final String body = messageArray[1];
-				handleMessage(command, body);				
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    private final Socket socket;
+    private final Logger logger = Logger.getLogger(PingPongHandler.class.getName());
+    private PrintWriter output;
 
-	private void handleMessage(String command, String body) {
-		logger.info("Handling new message: command: " + command + ", body: " + body);
-		if (command.equalsIgnoreCase("login")) {
-			this.username = body;
-			listener.handleLogin(body);
-		} else if (command.equalsIgnoreCase("message")) {
-			listener.handleMessage(username, body);
-		}		
-	}
+    public PingPongHandler(Socket socket) {
 
-	public void send(String message) {
-		try {
-			output.println(message);
-			output.flush();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+        logger.info("Cliente conectado.");
+        this.socket = socket;
+    }
 
+    public void run() {
+
+        try {
+            output = new PrintWriter(socket.getOutputStream());
+            Scanner input = new Scanner(socket.getInputStream());
+            String mensagem = "";
+
+            while (!mensagem.equalsIgnoreCase("end")) {
+                mensagem = input.nextLine();
+                logger.info(String.format("Nova mensagem: %s", mensagem));
+                handleMensagem(mensagem);
+            }
+
+            if (mensagem.equalsIgnoreCase("end")) {
+                encaminharMensagem("Finalizando conexão.");
+                socket.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleMensagem(String comando) throws IOException {
+
+        logger.info(String.format("Processando novo comando: %s", comando));
+
+        if (comando.equalsIgnoreCase("ping")) {
+            encaminharMensagem("pong");
+        }
+
+        if (comando.equalsIgnoreCase("end")) {
+            encaminharMensagem("Finalizando conexão.");
+            socket.close();
+        } else {
+            encaminharMensagem("Comando desconhecido.");
+        }
+    }
+
+    public void encaminharMensagem(String mensagem) {
+
+        try {
+            output.println(mensagem);
+            output.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
